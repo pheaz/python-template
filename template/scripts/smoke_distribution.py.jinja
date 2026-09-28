@@ -14,26 +14,38 @@ def main() -> None:
     wheels = sorted(Path("dist").glob("*.whl"))
 
     if len(wheels) != 1:
-        raise RuntimeError(f"Expected exactly one wheel, found {len(wheels)}")
+        raise RuntimeError(
+            f"Expected exactly one wheel, found {len(wheels)}"
+        )
 
     wheel = wheels[0].resolve()
 
     with tempfile.TemporaryDirectory() as temporary_directory:
         environment = Path(temporary_directory) / "smoke"
 
-        subprocess.run(
-            ["uv", "venv", str(environment), "--python", sys.executable],
+        _ = subprocess.run(
+            [
+                "uv",
+                "venv",
+                str(environment),
+                "--python",
+                sys.executable,
+            ],
             check=True,
         )
 
         if os.name == "nt":
             python = environment / "Scripts" / "python.exe"
-            executable = environment / "Scripts" / f"{PROJECT_NAME}.exe"
+            executable = (
+                environment
+                / "Scripts"
+                / f"{PROJECT_NAME}.exe"
+            )
         else:
             python = environment / "bin" / "python"
             executable = environment / "bin" / PROJECT_NAME
 
-        subprocess.run(
+        _ = subprocess.run(
             [
                 "uv",
                 "pip",
@@ -45,7 +57,7 @@ def main() -> None:
             check=True,
         )
 
-        subprocess.run(
+        _ = subprocess.run(
             [
                 str(python),
                 "-m",
@@ -55,7 +67,7 @@ def main() -> None:
             check=True,
         )
 
-        subprocess.run(
+        _ = subprocess.run(
             [
                 str(executable),
                 "--help",

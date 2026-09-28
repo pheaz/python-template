@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from importlib.metadata import version as package_version
+
 from typer.testing import CliRunner
 
 from [[ package_name ]].cli import app
+
+PROJECT_NAME = "[[ project_name ]]"
 
 runner = CliRunner()
 
@@ -11,11 +15,11 @@ def test_help() -> None:
     result = runner.invoke(app, ["--help"])
 
     assert result.exit_code == 0
-    assert "[[ project_name ]]" in result.stdout
+    assert "version" in result.stdout
 
 
 def test_version() -> None:
     result = runner.invoke(app, ["version"])
 
     assert result.exit_code == 0
-    assert "0.1.0" in result.stdout
+    assert result.stdout.strip() == package_version(PROJECT_NAME)

@@ -31,27 +31,33 @@ changes rather than silently redefining product behavior.
 - `spec/product.md` defines product scope and behavior.
 - `spec/requirements/` contains atomic requirements.
 - `spec/capabilities/` groups product capabilities.
-- `spec/flows/` models observable behavioral sequences.
+- `spec/flows/` models observable behavior as directed graphs.
 - `spec/schema/` validates structured specification artifacts.
+
+Flows use explicit entry nodes, action or decision steps, named transitions,
+and terminal states.
+
+Requirement, capability, subflow, entry and transition references must remain
+valid.
 
 When behavior changes, update the relevant specification before or together
 with implementation and tests.
 
 ## Decisions and architecture
 
-Use `docs/decisions/` for accepted architectural/project decisions and their
-rationale.
+Use `docs/decisions/` for accepted architectural and project decisions plus
+their rationale.
 
-Use `docs/architecture/` to describe the accepted current architecture.
+Use `docs/architecture/` to describe accepted current architecture.
 
-Do not put speculative architecture in either location. Explore alternatives
-under `project-memory/`.
+Do not put speculative architecture there. Explore alternatives under
+`project-memory/`.
 
 ## Planning
 
-Use `docs/plans/` only after a direction has been accepted.
+Use `docs/plans/` after a direction has been accepted.
 
-Exploration follows this progression when useful:
+A useful progression is:
 
 `inbox -> ideas -> investigations -> decisions -> plans -> implementation`
 
@@ -59,24 +65,23 @@ Not every small change requires every stage.
 
 ## Project memory
 
-`project-memory/` is explicitly non-normative.
+`project-memory/` is non-normative.
 
 Material there may be incomplete, contradictory or obsolete.
 
 Promote durable conclusions into `spec/`, `docs/decisions/`,
-`docs/plans/` or `docs/architecture/` rather than treating exploratory notes as
-authority.
+`docs/plans/` or `docs/architecture/`.
 
 ## Engineering principles
 
-- Prefer simple, explicit implementations.
+- Prefer simple and explicit implementations.
 - Avoid speculative abstractions.
 - Keep functions and modules focused.
-- Use standard-library facilities before introducing dependencies.
+- Prefer the standard library before adding dependencies.
 - Validate data at trust boundaries.
 - Keep secrets and environment-specific values out of source control.
 - Use explicit types.
-- Do not bypass type or lint checks merely to make quality gates pass.
+- Do not bypass quality checks merely to make them pass.
 - Test observable behavior and stable contracts.
 - Update dependency manifests and `uv.lock` together.
 - Use `main` as the primary branch.

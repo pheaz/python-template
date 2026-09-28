@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import shutil
+from pathlib import Path
+
 import nox
 
 QUALITY_TARGETS = (
@@ -30,7 +33,7 @@ def _run_module(
     module: str,
     *arguments: str,
 ) -> None:
-    session.run(
+    _ = session.run(
         "python",
         "-m",
         module,
@@ -41,7 +44,7 @@ def _run_module(
 
 @nox.session
 def fix(session: nox.Session) -> None:
-    """Apply safe automatic formatting and lint fixes."""
+    """Apply safe automatic fixes."""
     _run_module(
         session,
         "ruff",
@@ -89,7 +92,7 @@ def typecheck(session: nox.Session) -> None:
 
 @nox.session
 def spec(session: nox.Session) -> None:
-    """Validate normative specification artifacts."""
+    """Validate the normative specification."""
     _run_module(session, "scripts.check_spec")
 
 
@@ -105,8 +108,8 @@ def tests(session: nox.Session) -> None:
 
 @nox.session
 def lock(session: nox.Session) -> None:
-    """Verify that uv.lock matches pyproject.toml."""
-    session.run(
+    """Verify the uv lockfile."""
+    _ = session.run(
         "uv",
         "lock",
         "--check",
@@ -116,18 +119,27 @@ def lock(session: nox.Session) -> None:
 
 @nox.session
 def build(session: nox.Session) -> None:
-    """Build and smoke-test the package."""
-    session.run(
+    """Build and smoke-test the distribution."""
+    dist = Path("dist")
+
+    if dist.exists():
+        shutil.rmtree(dist)
+
+    _ = session.run(
         "uv",
         "build",
         "--no-sources",
         external=True,
     )
-    _run_module(session, "scripts.smoke_distribution")
+
+    _run_module(
+        session,
+        "scripts.smoke_distribution",
+    )
 
 
 @nox.session
 def full(session: nox.Session) -> None:
     """Run all non-mutating quality checks."""
     for session_name in FULL_CHECK_SESSIONS:
-        session.notify(session_name)
+        _ = session.notify(session_name)

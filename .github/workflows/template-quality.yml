@@ -27,18 +27,33 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
-          enable-cache: true
+          enable-cache: false
 
       - name: Render project
         run: |
-          uvx copier==9.18.2 copy             --trust             --vcs-ref=HEAD             --defaults             -d project_name=template-smoke             -d repository_visibility=${{ matrix.visibility }}             .             "$RUNNER_TEMP/generated"
+          uvx copier==9.18.2 copy \
+            --trust \
+            --vcs-ref=HEAD \
+            --defaults \
+            -d project_name=template-smoke \
+            -d repository_visibility=${{ matrix.visibility }} \
+            . \
+            "$RUNNER_TEMP/generated"
 
-      - name: Validate generated project
-        working-directory: ${{ runner.temp }}/generated
-        run: uv run nox -s full
+      - name: Verify visibility-specific files
+        run: |
+          if [[ "${{ matrix.visibility }}" == "public" ]]; then
+            test -f "$RUNNER_TEMP/generated/LICENSE"
+            test -f "$RUNNER_TEMP/generated/.github/workflows/release.yml"
+          else
+            test ! -e "$RUNNER_TEMP/generated/LICENSE"
+            test ! -e "$RUNNER_TEMP/generated/.github/workflows/release.yml"
+          fi

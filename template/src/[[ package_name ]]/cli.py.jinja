@@ -1,20 +1,27 @@
 from __future__ import annotations
 
-from importlib.metadata import version
+from importlib.metadata import version as package_version
 
 import typer
 
+PROJECT_NAME = "[[ project_name ]]"
+
 app = typer.Typer(
-    name="[[ project_name ]]",
+    name=PROJECT_NAME,
     help=[[ description | tojson ]],
     no_args_is_help=True,
 )
 
 
+@app.callback()
+def root() -> None:
+    """Run the command-line application."""
+
+
 @app.command("version")
 def version_command() -> None:
     """Print the installed package version."""
-    typer.echo(version("[[ project_name ]]"))
+    typer.echo(package_version(PROJECT_NAME))
 
 
 def main() -> None:

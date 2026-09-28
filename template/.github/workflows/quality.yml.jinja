@@ -14,6 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+[% if repository_visibility == "private" %]
   quota:
     name: Actions quota
     runs-on: ubuntu-latest
@@ -23,34 +24,34 @@ jobs:
       usage_percent: ${{ steps.quota.outputs.usage_percent }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
           enable-cache: true
 
-      - name: Measure quota
-        id: quota
+      - id: quota
         env:
           ACTIONS_QUOTA_TOKEN: ${{ secrets.ACTIONS_QUOTA_TOKEN }}
           ACTIONS_QUOTA_MINUTES: ${{ vars.ACTIONS_QUOTA_MINUTES || '2000' }}
         run: uv run --locked --group ci github-actions-quota
+[% endif %]
 
   lock:
     name: Lock
+[% if repository_visibility == "private" %]
     needs: quota
     if: >-
       needs.quota.outputs.usage_available == 'true' &&
       needs.quota.outputs.usage_percent < 100
+[% endif %]
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
 
@@ -58,16 +59,18 @@ jobs:
 
   format:
     name: Format
+[% if repository_visibility == "private" %]
     needs: quota
     if: >-
       needs.quota.outputs.usage_available == 'true' &&
       needs.quota.outputs.usage_percent < 50
+[% endif %]
     runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
           enable-cache: true
@@ -77,16 +80,18 @@ jobs:
 
   lint:
     name: Lint
+[% if repository_visibility == "private" %]
     needs: quota
     if: >-
       needs.quota.outputs.usage_available == 'true' &&
       needs.quota.outputs.usage_percent < 50
+[% endif %]
     runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
           enable-cache: true
@@ -96,16 +101,18 @@ jobs:
 
   typecheck:
     name: Type Check
+[% if repository_visibility == "private" %]
     needs: quota
     if: >-
       needs.quota.outputs.usage_available == 'true' &&
       needs.quota.outputs.usage_percent < 50
+[% endif %]
     runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
           enable-cache: true
@@ -115,16 +122,18 @@ jobs:
 
   spec:
     name: Specification
+[% if repository_visibility == "private" %]
     needs: quota
     if: >-
       needs.quota.outputs.usage_available == 'true' &&
       needs.quota.outputs.usage_percent < 50
+[% endif %]
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
           enable-cache: true
@@ -134,10 +143,12 @@ jobs:
 
   tests:
     name: Tests
+[% if repository_visibility == "private" %]
     needs: quota
     if: >-
       needs.quota.outputs.usage_available == 'true' &&
       needs.quota.outputs.usage_percent < 50
+[% endif %]
 [% if platform == "cross-platform" %]
     strategy:
       fail-fast: false
@@ -152,9 +163,9 @@ jobs:
 [% endif %]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
           enable-cache: true
@@ -164,16 +175,18 @@ jobs:
 
   build:
     name: Build
+[% if repository_visibility == "private" %]
     needs: quota
     if: >-
       needs.quota.outputs.usage_available == 'true' &&
       needs.quota.outputs.usage_percent < 50
+[% endif %]
     runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.19"
           enable-cache: true

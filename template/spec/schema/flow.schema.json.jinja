@@ -6,9 +6,12 @@
   "required": [
     "schema_version",
     "id",
+    "scope",
     "title",
-    "purpose",
-    "steps"
+    "status",
+    "entry",
+    "steps",
+    "terminal_states"
   ],
   "properties": {
     "schema_version": {
@@ -18,13 +21,25 @@
       "type": "string",
       "pattern": "^[[ spec_prefix ]]-FLOW-[A-Z0-9-]+$"
     },
+    "scope": {
+      "enum": [
+        "product",
+        "development"
+      ]
+    },
     "title": {
       "type": "string",
       "minLength": 1
     },
-    "purpose": {
-      "type": "string",
-      "minLength": 1
+    "status": {
+      "enum": [
+        "planned",
+        "implemented",
+        "deprecated"
+      ]
+    },
+    "entry": {
+      "$ref": "#/$defs/nodeId"
     },
     "requirements": {
       "type": "array",
@@ -42,9 +57,9 @@
         "pattern": "^[[ spec_prefix ]]-CAP-[A-Z0-9-]+$"
       }
     },
-    "preconditions": {
-      "type": "array",
-      "items": {
+    "references": {
+      "type": "object",
+      "additionalProperties": {
         "type": "string",
         "minLength": 1
       }
@@ -53,37 +68,119 @@
       "type": "array",
       "minItems": 1,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "action"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9-]*$"
-          },
-          "action": {
-            "type": "string",
-            "minLength": 1
-          },
-          "requirements": {
-            "type": "array",
-            "uniqueItems": true,
-            "items": {
-              "type": "string",
-              "pattern": "^[[ spec_prefix ]]-REQ-[A-Z0-9-]+$"
-            }
-          }
-        }
+        "$ref": "#/$defs/step"
       }
     },
-    "outcomes": {
+    "terminal_states": {
       "type": "array",
+      "minItems": 1,
       "items": {
-        "type": "string",
-        "minLength": 1
+        "$ref": "#/$defs/terminal"
+      }
+    },
+    "invariants": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "nodeId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "transitions": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/nodeId"
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "transitions"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nodeId"
+        },
+        "kind": {
+          "enum": [
+            "action",
+            "decision"
+          ]
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capability": {
+          "type": "string",
+          "pattern": "^[[ spec_prefix ]]-CAP-[A-Z0-9-]+$"
+        },
+        "subflow": {
+          "type": "string",
+          "pattern": "^[[ spec_prefix ]]-FLOW-[A-Z0-9-]+$"
+        },
+        "requirements": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[[ spec_prefix ]]-REQ-[A-Z0-9-]+$"
+          }
+        },
+        "transitions": {
+          "$ref": "#/$defs/transitions"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "action"
+          ]
+        },
+        {
+          "required": [
+            "capability"
+          ]
+        },
+        {
+          "required": [
+            "subflow"
+          ]
+        }
+      ]
+    },
+    "terminal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "outcome"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nodeId"
+        },
+        "outcome": {
+          "enum": [
+            "success",
+            "failure",
+            "skipped"
+          ]
+        },
+        "capability": {
+          "type": "string",
+          "pattern": "^[[ spec_prefix ]]-CAP-[A-Z0-9-]+$"
+        }
       }
     }
   }
