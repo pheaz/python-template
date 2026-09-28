@@ -44,15 +44,21 @@ def _normalize(value: object) -> JsonValue:
 
 
 def _load_yaml(path: Path) -> JsonValue:
-    raw: object = yaml.safe_load(path.read_text(encoding="utf-8"))
-
-    return _normalize(raw)
+    return _normalize(
+        cast(
+            "object",
+            yaml.safe_load(path.read_text(encoding="utf-8")),
+        )
+    )
 
 
 def _load_json(path: Path) -> JsonValue:
-    raw: object = json.loads(path.read_text(encoding="utf-8"))
-
-    return _normalize(raw)
+    return _normalize(
+        cast(
+            "object",
+            json.loads(path.read_text(encoding="utf-8")),
+        )
+    )
 
 
 def _object(
@@ -344,9 +350,7 @@ def _validate_graph(
 
             if target not in targets:
                 raise ValueError(
-                    f"{flow_id}.{step_id} "
-                    f"transition {outcome} "
-                    f"targets unknown node {target}"
+                    f"{flow_id}.{step_id} transition {outcome} targets unknown node {target}"
                 )
 
 
