@@ -14,9 +14,7 @@ def main() -> None:
     wheels = sorted(Path("dist").glob("*.whl"))
 
     if len(wheels) != 1:
-        raise RuntimeError(
-            f"Expected exactly one wheel, found {len(wheels)}"
-        )
+        raise RuntimeError(f"Expected exactly one wheel, found {len(wheels)}")
 
     wheel = wheels[0].resolve()
 
@@ -36,11 +34,7 @@ def main() -> None:
 
         if os.name == "nt":
             python = environment / "Scripts" / "python.exe"
-            executable = (
-                environment
-                / "Scripts"
-                / f"{PROJECT_NAME}.exe"
-            )
+            executable = environment / "Scripts" / f"{PROJECT_NAME}.exe"
         else:
             python = environment / "bin" / "python"
             executable = environment / "bin" / PROJECT_NAME

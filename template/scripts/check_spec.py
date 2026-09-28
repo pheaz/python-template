@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SPEC = ROOT / "spec"
 SCHEMA = SPEC / "schema"
 
-type JsonScalar = None | bool | int | float | str
+type JsonScalar = bool | int | float | str | None
 type JsonValue = JsonScalar | list[JsonValue] | dict[str, JsonValue]
 type Record = tuple[Path, dict[str, JsonValue]]
 
@@ -24,12 +24,12 @@ def _normalize(value: object) -> JsonValue:
         return value
 
     if isinstance(value, list):
-        values = cast(list[object], value)
+        values = cast("list[object]", value)
 
         return [_normalize(item) for item in values]
 
     if isinstance(value, dict):
-        mapping = cast(dict[object, object], value)
+        mapping = cast("dict[object, object]", value)
         result: dict[str, JsonValue] = {}
 
         for key, item in mapping.items():
@@ -174,35 +174,31 @@ def _load_registry(
             f"{path}:{key}",
         )
 
-        for value in values:
-            result.append(
-                (
-                    path,
-                    _object(
-                        value,
-                        str(path),
-                    ),
-                )
+        result.extend(
+            (
+                path,
+                _object(
+                    value,
+                    str(path),
+                ),
             )
+            for value in values
+        )
 
     return result
 
 
 def _load_flows() -> list[Record]:
-    result: list[Record] = []
-
-    for path in sorted((SPEC / "flows").glob("*.yaml")):
-        result.append(
-            (
+    return [
+        (
+            path,
+            _validate_file(
                 path,
-                _validate_file(
-                    path,
-                    SCHEMA / "flow.schema.json",
-                ),
-            )
+                SCHEMA / "flow.schema.json",
+            ),
         )
-
-    return result
+        for path in sorted((SPEC / "flows").glob("*.yaml"))
+    ]
 
 
 def _index_records(
