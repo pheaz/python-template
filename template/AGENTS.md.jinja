@@ -1,0 +1,96 @@
+# Repository Working Rules
+
+## Mission
+
+[[ description ]]
+
+## Authority hierarchy
+
+When information conflicts, use this order:
+
+1. Current explicit task/user instruction
+2. `spec/` normative product and workflow specification
+3. Accepted decisions under `docs/decisions/`
+4. Current source code and tests as evidence of implemented behavior
+5. `docs/architecture/`
+6. Active accepted plans under `docs/plans/`
+7. Other current project documentation
+8. `project-memory/investigations/`
+9. `project-memory/ideas/`
+10. `project-memory/context/`
+11. `project-memory/inbox/`
+12. `project-memory/discarded/`
+
+The source code must be brought into agreement with normative specification
+changes rather than silently redefining product behavior.
+
+## Specification
+
+`spec/` is normative.
+
+- `spec/product.md` defines product scope and behavior.
+- `spec/requirements/` contains atomic requirements.
+- `spec/capabilities/` groups product capabilities.
+- `spec/flows/` models observable behavioral sequences.
+- `spec/schema/` validates structured specification artifacts.
+
+When behavior changes, update the relevant specification before or together
+with implementation and tests.
+
+## Decisions and architecture
+
+Use `docs/decisions/` for accepted architectural/project decisions and their
+rationale.
+
+Use `docs/architecture/` to describe the accepted current architecture.
+
+Do not put speculative architecture in either location. Explore alternatives
+under `project-memory/`.
+
+## Planning
+
+Use `docs/plans/` only after a direction has been accepted.
+
+Exploration follows this progression when useful:
+
+`inbox -> ideas -> investigations -> decisions -> plans -> implementation`
+
+Not every small change requires every stage.
+
+## Project memory
+
+`project-memory/` is explicitly non-normative.
+
+Material there may be incomplete, contradictory or obsolete.
+
+Promote durable conclusions into `spec/`, `docs/decisions/`,
+`docs/plans/` or `docs/architecture/` rather than treating exploratory notes as
+authority.
+
+## Engineering principles
+
+- Prefer simple, explicit implementations.
+- Avoid speculative abstractions.
+- Keep functions and modules focused.
+- Use standard-library facilities before introducing dependencies.
+- Validate data at trust boundaries.
+- Keep secrets and environment-specific values out of source control.
+- Use explicit types.
+- Do not bypass type or lint checks merely to make quality gates pass.
+- Test observable behavior and stable contracts.
+- Update dependency manifests and `uv.lock` together.
+- Use `main` as the primary branch.
+
+## Quality commands
+
+Apply safe automatic fixes:
+
+    uv run nox -s fix
+
+Run all checks:
+
+    uv run nox -s full
+
+Validate only the normative specification:
+
+    uv run nox -s spec

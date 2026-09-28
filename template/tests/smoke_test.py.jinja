@@ -1,0 +1,18 @@
+from __future__ import annotations
+
+import importlib
+import subprocess
+import sys
+
+
+def main() -> None:
+    importlib.import_module("[[ package_name ]]")
+
+    subprocess.run(
+        [sys.executable, "-m", "[[ package_name ]]", "--help"],
+        check=True,
+    )
+
+
+if __name__ == "__main__":
+    main()

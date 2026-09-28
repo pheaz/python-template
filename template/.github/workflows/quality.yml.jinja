@@ -1,0 +1,182 @@
+name: Quality
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quota:
+    name: Actions quota
+    runs-on: ubuntu-latest
+
+    outputs:
+      usage_available: ${{ steps.quota.outputs.usage_available }}
+      usage_percent: ${{ steps.quota.outputs.usage_percent }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+
+      - name: Measure quota
+        id: quota
+        env:
+          ACTIONS_QUOTA_TOKEN: ${{ secrets.ACTIONS_QUOTA_TOKEN }}
+          ACTIONS_QUOTA_MINUTES: ${{ vars.ACTIONS_QUOTA_MINUTES || '2000' }}
+        run: uv run --locked --group ci github-actions-quota
+
+  lock:
+    name: Lock
+    needs: quota
+    if: >-
+      needs.quota.outputs.usage_available == 'true' &&
+      needs.quota.outputs.usage_percent < 100
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+
+      - run: uv lock --check
+
+  format:
+    name: Format
+    needs: quota
+    if: >-
+      needs.quota.outputs.usage_available == 'true' &&
+      needs.quota.outputs.usage_percent < 50
+    runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+
+      - run: uv sync --locked --group dev
+      - run: uv run --locked --no-sync nox -s format
+
+  lint:
+    name: Lint
+    needs: quota
+    if: >-
+      needs.quota.outputs.usage_available == 'true' &&
+      needs.quota.outputs.usage_percent < 50
+    runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+
+      - run: uv sync --locked --group dev
+      - run: uv run --locked --no-sync nox -s lint
+
+  typecheck:
+    name: Type Check
+    needs: quota
+    if: >-
+      needs.quota.outputs.usage_available == 'true' &&
+      needs.quota.outputs.usage_percent < 50
+    runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+
+      - run: uv sync --locked --group dev
+      - run: uv run --locked --no-sync nox -s typecheck
+
+  spec:
+    name: Specification
+    needs: quota
+    if: >-
+      needs.quota.outputs.usage_available == 'true' &&
+      needs.quota.outputs.usage_percent < 50
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+
+      - run: uv sync --locked --group dev
+      - run: uv run --locked --no-sync nox -s spec
+
+  tests:
+    name: Tests
+    needs: quota
+    if: >-
+      needs.quota.outputs.usage_available == 'true' &&
+      needs.quota.outputs.usage_percent < 50
+[% if platform == "cross-platform" %]
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
+[% else %]
+    runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
+[% endif %]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+
+      - run: uv sync --locked --group dev
+      - run: uv run --locked --no-sync nox -s tests
+
+  build:
+    name: Build
+    needs: quota
+    if: >-
+      needs.quota.outputs.usage_available == 'true' &&
+      needs.quota.outputs.usage_percent < 50
+    runs-on: [% if platform == "windows" %]windows-latest[% elif platform == "macos" %]macos-latest[% else %]ubuntu-latest[% endif %]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+
+      - run: uv sync --locked --group dev
+      - run: uv run --locked --no-sync nox -s build

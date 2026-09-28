@@ -1,0 +1,97 @@
+_min_copier_version: "9.18.2"
+_subdirectory: template
+_answers_file: .copier-answers.yml
+
+_envops:
+  autoescape: false
+  block_start_string: "[%"
+  block_end_string: "%]"
+  variable_start_string: "[["
+  variable_end_string: "]]"
+  comment_start_string: "[#"
+  comment_end_string: "#]"
+  keep_trailing_newline: true
+
+_exclude:
+  - |
+      [% if repository_visibility != 'public' %]
+      LICENSE
+      .github/workflows/release.yml
+      [% endif %]
+
+_tasks:
+  - command: [git, init, -b, main]
+    when: "[[ _copier_operation == 'copy' ]]"
+
+  - command: [uv, lock]
+    when: "[[ _copier_operation == 'copy' ]]"
+
+  - command: [uv, sync, --group, dev]
+    when: "[[ _copier_operation == 'copy' ]]"
+
+  - command: [uv, run, pre-commit, install]
+    when: "[[ _copier_operation == 'copy' ]]"
+
+  - command: [uv, run, nox, -s, full]
+    when: "[[ _copier_operation == 'copy' ]]"
+
+project_name:
+  type: str
+  help: Python distribution / CLI name, e.g. avedo-file-transfer
+  validator: >-
+    [% if not (project_name | regex_search('^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$')) %]
+    Use lowercase letters, digits and single dashes; start with a letter.
+    [% endif %]
+
+package_name:
+  type: str
+  default: "[[ project_name | replace('-', '_') ]]"
+  when: false
+
+description:
+  type: str
+  help: Short project description
+  default: "[[ project_name ]]"
+
+spec_prefix:
+  type: str
+  help: Prefix for requirement/capability/flow IDs, e.g. AFT
+  default: "[[ (project_name | replace('-', '') | upper)[:3] ]]"
+  validator: >-
+    [% if not (spec_prefix | regex_search('^[A-Z][A-Z0-9]{0,7}$')) %]
+    Use 1-8 uppercase ASCII letters/digits and start with a letter.
+    [% endif %]
+
+github_owner:
+  type: str
+  help: GitHub user or organization
+  default: "philippwallrafen"
+
+author_name:
+  type: str
+  help: Package author
+  default: "philippwallrafen"
+
+repository_visibility:
+  type: str
+  help: Repository visibility
+  choices:
+    Private: private
+    Public / publishable Python package: public
+  default: private
+
+platform:
+  type: str
+  help: Supported runtime platform
+  choices:
+    Cross-platform: cross-platform
+    Windows: windows
+    Linux: linux
+    macOS: macos
+  default: cross-platform
+
+copyright_year:
+  type: int
+  help: Copyright year for public projects
+  default: 2026
+  when: "[[ repository_visibility == 'public' ]]"

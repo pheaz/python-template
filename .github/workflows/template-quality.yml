@@ -1,0 +1,44 @@
+name: Template Quality
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: template-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    name: Render ${{ matrix.visibility }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        visibility:
+          - private
+          - public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: true
+
+      - name: Render project
+        run: |
+          uvx copier==9.18.2 copy             --trust             --vcs-ref=HEAD             --defaults             -d project_name=template-smoke             -d repository_visibility=${{ matrix.visibility }}             .             "$RUNNER_TEMP/generated"
+
+      - name: Validate generated project
+        working-directory: ${{ runner.temp }}/generated
+        run: uv run nox -s full

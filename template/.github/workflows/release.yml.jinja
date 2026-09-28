@@ -1,0 +1,71 @@
+name: Publish release to PyPI
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+rc[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+[ab][0-9]+"
+
+jobs:
+  build:
+    name: Build distributions
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: false
+
+      - name: Install development environment
+        run: uv sync --locked --group dev
+
+      - name: Build
+        run: uv build --no-sources
+
+      - name: Smoke-test distributions
+        run: uv run --locked --no-sync python scripts/smoke_distribution.py
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/[[ project_name ]]
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.19"
+          enable-cache: false
+
+      - name: Download distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish
+        run: uv publish

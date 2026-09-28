@@ -1,0 +1,23 @@
+# Normative specification
+
+`spec/` is the authoritative source for intended product behavior.
+
+## Structure
+
+- `product.md` — product purpose, boundaries and normative behavior
+- `requirements/` — atomic requirements
+- `capabilities/` — product capabilities and their requirements
+- `flows/` — machine-readable behavioral flows
+- `schema/` — schemas for machine-readable specification artifacts
+
+IDs use the project prefix `[[ spec_prefix ]]`:
+
+- `[[ spec_prefix ]]-REQ-*`
+- `[[ spec_prefix ]]-CAP-*`
+- `[[ spec_prefix ]]-FLOW-*`
+
+Source code and tests must implement and verify the specification.
+
+Exploratory material does not belong here. Use `project-memory/`.
+
+Architectural rationale belongs in `docs/decisions/`.

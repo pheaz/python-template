@@ -1,0 +1,114 @@
+# [[ project_name ]]
+
+[[ description ]]
+
+[% if repository_visibility == "public" %]
+## Installation
+
+For command-line use with uv:
+
+```bash
+uv tool install [[ project_name ]]
+```
+
+Alternative with pipx:
+
+```bash
+pipx install [[ project_name ]]
+```
+
+Or with pip:
+
+```bash
+pip install [[ project_name ]]
+```
+[% else %]
+## Setup
+
+```bash
+uv sync --group dev
+```
+
+Run the CLI:
+
+```bash
+uv run [[ project_name ]] --help
+```
+[% endif %]
+
+## Development
+
+Apply safe automatic fixes:
+
+```bash
+uv run nox -s fix
+```
+
+Run the complete quality suite:
+
+```bash
+uv run nox -s full
+```
+
+Run tests:
+
+```bash
+uv run nox -s tests
+```
+
+## Specification and documentation
+
+Normative behavior:
+
+```text
+spec/
+```
+
+Accepted architectural decisions:
+
+```text
+docs/decisions/
+```
+
+Current architecture:
+
+```text
+docs/architecture/
+```
+
+Accepted implementation plans:
+
+```text
+docs/plans/
+```
+
+Exploratory and non-normative material:
+
+```text
+project-memory/
+```
+
+[% if repository_visibility == "public" %]
+## Releases
+
+This project is prepared for publication to PyPI through GitHub Actions and
+PyPI Trusted Publishing.
+
+The release workflow triggers from version tags such as:
+
+```bash
+git tag -a v0.1.0 -m v0.1.0
+git push origin v0.1.0
+```
+
+Before the first release, configure the `pypi` GitHub environment and register
+this repository as a Trusted Publisher on PyPI.
+[% endif %]
+
+## CLI completion
+
+Typer provides shell completion support.
+
+```bash
+[[ project_name ]] --install-completion
+```

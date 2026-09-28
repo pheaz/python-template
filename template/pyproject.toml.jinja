@@ -1,0 +1,100 @@
+[build-system]
+requires = ["uv_build>=0.12.19,<0.13"]
+build-backend = "uv_build"
+
+[project]
+name = "[[ project_name ]]"
+version = "0.1.0"
+description = [[ description | tojson ]]
+readme = "README.md"
+requires-python = ">=3.14"
+authors = [
+    { name = [[ author_name | tojson ]] },
+]
+dependencies = [
+    "typer>=0.27.2,<1",
+]
+
+[% if repository_visibility == "public" %]
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Repository = "https://github.com/[[ github_owner ]]/[[ project_name ]]"
+Issues = "https://github.com/[[ github_owner ]]/[[ project_name ]]/issues"
+Changelog = "https://github.com/[[ github_owner ]]/[[ project_name ]]/releases"
+[% endif %]
+
+[project.scripts]
+[[ project_name ]] = "[[ package_name ]].cli:main"
+
+[dependency-groups]
+ci = [
+    "github-actions-quota==0.1.0",
+]
+
+dev = [
+    "basedpyright>=1.39,<2",
+    "jsonschema>=4.25,<5",
+    "nox>=2026.4",
+    "pre-commit>=4,<5",
+    "pytest>=9,<10",
+    "pytest-cov>=7,<8",
+    "pyyaml>=6,<7",
+    "ruff>=0.15,<1",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812",
+    "D",
+    "EM",
+    "FBT",
+    "T201",
+    "TRY003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "PLR2004",
+    "S101",
+]
+"scripts/check_spec.py" = [
+    "ANN401",
+]
+"scripts/smoke_distribution.py" = [
+    "S603",
+    "S607",
+]
+
+[tool.basedpyright]
+include = [
+    "src",
+    "tests",
+    "scripts",
+    "noxfile.py",
+]
+pythonVersion = "3.14"
+typeCheckingMode = "recommended"
+
+[% if platform == "windows" %]
+pythonPlatform = "Windows"
+[% elif platform == "linux" %]
+pythonPlatform = "Linux"
+[% elif platform == "macos" %]
+pythonPlatform = "Darwin"
+[% endif %]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--cov=[[ package_name ]]",
+    "--cov-report=term-missing",
+]
+testpaths = ["tests"]
