@@ -19,7 +19,8 @@
         "required": [
           "id",
           "title",
-          "statement"
+          "statement",
+          "status"
         ],
         "properties": {
           "id": {
@@ -38,10 +39,22 @@
             "type": "string",
             "enum": [
               "planned",
-              "active",
+              "implemented",
               "deprecated"
-            ],
-            "default": "active"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "normal",
+              "low"
+            ]
           }
         }
       }

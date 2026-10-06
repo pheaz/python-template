@@ -20,6 +20,7 @@
           "id",
           "title",
           "description",
+          "status",
           "requirements"
         ],
         "properties": {
@@ -34,6 +35,14 @@
           "description": {
             "type": "string",
             "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "implemented",
+              "deprecated"
+            ]
           },
           "requirements": {
             "type": "array",

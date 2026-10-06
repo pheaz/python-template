@@ -22,6 +22,7 @@
       "pattern": "^[[ spec_prefix ]]-FLOW-[A-Z0-9-]+$"
     },
     "scope": {
+      "type": "string",
       "enum": [
         "product",
         "development"
@@ -32,6 +33,7 @@
       "minLength": 1
     },
     "status": {
+      "type": "string",
       "enum": [
         "planned",
         "implemented",
@@ -91,6 +93,9 @@
     "transitions": {
       "type": "object",
       "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_-]*$"
+      },
       "additionalProperties": {
         "$ref": "#/$defs/nodeId"
       }
@@ -108,6 +113,7 @@
           "$ref": "#/$defs/nodeId"
         },
         "kind": {
+          "type": "string",
           "enum": [
             "action",
             "decision"
@@ -171,6 +177,7 @@
           "$ref": "#/$defs/nodeId"
         },
         "outcome": {
+          "type": "string",
           "enum": [
             "success",
             "failure",
