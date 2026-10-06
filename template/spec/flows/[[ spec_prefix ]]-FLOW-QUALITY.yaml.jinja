@@ -1,0 +1,63 @@
+schema_version: 1
+id: [[ spec_prefix ]]-FLOW-QUALITY
+scope: development
+title: Repository quality validation
+status: implemented
+entry: format
+
+steps:
+  - id: format
+    kind: action
+    action: check_format
+    transitions:
+      success: lint
+      failure: failed
+
+  - id: lint
+    kind: action
+    action: lint
+    transitions:
+      success: typecheck
+      failure: failed
+
+  - id: typecheck
+    kind: action
+    action: typecheck
+    transitions:
+      success: specification
+      failure: failed
+
+  - id: specification
+    kind: action
+    action: validate_specification
+    transitions:
+      success: tests
+      failure: failed
+
+  - id: tests
+    kind: action
+    action: run_tests
+    transitions:
+      success: lock
+      failure: failed
+
+  - id: lock
+    kind: action
+    action: validate_lock
+    transitions:
+      success: build
+      failure: failed
+
+  - id: build
+    kind: action
+    action: build_distribution
+    transitions:
+      success: completed
+      failure: failed
+
+terminal_states:
+  - id: completed
+    outcome: success
+
+  - id: failed
+    outcome: failure

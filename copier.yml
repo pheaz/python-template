@@ -70,7 +70,7 @@ github_owner:
 author_name:
   type: str
   help: Package author
-  default: "philippwallrafen"
+  default: "Philipp Wallrafen"
 
 repository_visibility:
   type: str
